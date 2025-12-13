@@ -1,0 +1,254 @@
+<html>
+<head>
+  <style>
+    /* ---------------------------------- */
+    /* 🎨 기본 스타일 (데스크탑) */
+    /* ---------------------------------- */
+    body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; margin: 20px; }
+    h2 { padding-bottom: 10px; border-bottom: 2px solid #333; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; height: 40px; }
+    th { background-color: #f4f4f4; }
+    td:nth-child(1), td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+      background-color: #fafafa;
+      font-weight: bold;
+      font-size: 15px;
+    }
+    input[type="number"] { 
+      width: 95%; 
+      padding: 8px; 
+      font-size: 16px; 
+      box-sizing: border-box;
+      text-align: center;
+    }
+    th:last-child, td:last-child { width: 10%; } 
+    td span { font-weight: bold; font-size: 16px; } 
+    button { 
+      padding: 12px 25px; 
+      background-color: #4d79ff; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      font-size: 16px; 
+      font-weight: bold; 
+      margin-top: 15px;
+    }
+    button:hover { background-color: #3a5bcc; }
+    #message { margin-top: 15px; font-weight: bold; font-size: 16px; }
+    .judge-section { margin-bottom: 15px; }
+    .judge-section label { font-size: 16px; font-weight: bold; }
+    .judge-section input { width: 250px; text-align: left; padding: 8px; font-size: 15px; }
+
+    /* ---------------------------------- */
+    /* 📱 모바일 반응형 '마법' 코드  */
+    /* (화면 너비가 768px보다 좁아지면 작동) */
+    /* ---------------------------------- */
+    @media (max-width: 768px) {
+      /* 1. 데스크탑용 원본 헤더(제목 줄) 숨기기 */
+      table thead {
+        display: none;
+      }
+      
+      /* 2. 표의 모든 요소를 세로로 쌓기(Block) */
+      table, tbody, tr, td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box; /* 너비 계산이 꼬이지 않게 함 */
+      }
+      
+      /* 3. 한 '줄(tr)'을 하나의 '카드'처럼 보이게 함 */
+      tbody tr {
+        margin-bottom: 15px;
+        border: 2px solid #4d79ff; /* 파란색 테두리로 카드 구분 */
+        padding: 5px;
+      }
+      
+      /* 4. 각 '칸(td)'의 스타일 변경 */
+      tbody td {
+        padding-left: 45%;  /* 왼쪽에 '라벨'이 들어갈 공간 확보 */
+        text-align: right;  /* 값은 오른쪽 정렬 */
+        position: relative; /* '라벨'의 기준점이 됨 */
+        height: auto;
+        border: none;
+        border-bottom: 1px dotted #ccc; /* 각 항목을 점선으로 구분 */
+      }
+      
+      /* 5. 각 카드의 마지막 칸은 점선 없음 */
+      tbody td:last-child {
+        border-bottom: 0;
+      }
+      
+      /* 6. 🪄 'data-label'을 가져와서 왼쪽에 헤더처럼 붙여주기 */
+      tbody td:before {
+        /* HTML의 'data-label' 속성 값을 가져옴 */
+        content: attr(data-label); 
+        position: absolute;
+        left: 10px;
+        width: calc(45% - 15px); /* 패딩 뺀 값 */
+        text-align: left;
+        font-weight: bold;
+        white-space: nowrap; /* 라벨이 줄바꿈되지 않게 함 */
+        font-size: 14px;
+        color: #333;
+      }
+
+      /* 7. 입력칸들 100% 너비로 */
+      input[type="number"], input[type="text"], select {
+          width: 100%;
+          font-size: 16px;
+      }
+      
+      /* 8. 미리 채워진 칸들 스타일 모바일용으로 초기화 */
+      td:nth-child(1), td:nth-child(2), td:nth-child(3), td:nth-child(4) {
+        background-color: transparent;
+        font-weight: normal;
+        text-align: right;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>심사 점수 입력 (반응형)</h2>
+  
+  <form id="scoreForm">
+    <div class="judge-section">
+      <label for="judgeName">심사위원 성명: </label>
+      <input type="text" id="judgeNameInput" name="judgeName" required>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>구분</th>
+          <th>단체명</th>
+          <th>대표자</th>
+          <th>직위</th>
+          <th>연구개발실적<br>(-30)</th>
+          <th>협력참여도<br>(-30)</th>
+          <th>국가경제기여도<br>(-40)</th>
+          <th>합계<br>(-100)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-label="1번 팀">
+          <td data-label="구분">
+            학계
+            <input type="hidden" name="group1_gubun" value="학계">
+          </td>
+          <td data-label="단체명">
+            스트레이키즈
+            <input type="hidden" name="group1_name" value="테스트">
+          </td>
+          <td data-label="대표자">
+            필릭스
+            <input type="hidden" name="group1_rep" value="최송송">
+          </td>
+          <td data-label="직위">
+            얼굴은선녀몸은나무꾼
+            <input type="hidden" name="group1_pos" value="연구원">
+          </td>
+          <td data-label="연구개발실적(-30)"><input type="number" name="group1_score1" min="0" max="30" oninput="calculateTotal(1)" required></td>
+          <td data-label="협력참여도(-30)"><input type="number" name="group1_score2" min="0" max="30" oninput="calculateTotal(1)" required></td>
+          <td data-label="국가경제기여도(-40)"><input type="number" name="group1_score3" min="0" max="40" oninput="calculateTotal(1)" required></td>
+          <td data-label="합계(-100)"><span id="group1_total">0</span></td>
+        </tr>
+        
+        <tr data-label="2번 팀">
+          <td data-label="구분">
+            산업계
+            <input type="hidden" name="group2_gubun" value="산업계">
+          </td>
+          <td data-label="단체명">
+            스키즈
+            <input type="hidden" name="group2_name" value="심사표">
+          </td>
+          <td data-label="대표자">
+            한지성
+            <input type="hidden" name="group2_rep" value="최송진">
+          </td>
+          <td data-label="직위">
+            올라운드 래퍼
+            <input type="hidden" name="group2_pos" value="선임">
+          </td>
+          <td data-label="연구개발실적(-30)"><input type="number" name="group2_score1" min="0" max="30" oninput="calculateTotal(2)" required></td>
+          <td data-label="협력참여도(-30)"><input type="number" name="group2_score2" min="0" max="30" oninput="calculateTotal(2)" required></td>
+          <td data-label="국가경제기여도(-40)"><input type="number" name="group2_score3" min="0" max="40" oninput="calculateTotal(2)" required></td>
+          <td data-label="합계(-100)"><span id="group2_total">0</span></td>
+        </tr>
+        
+        <tr data-label="3번 팀">
+          <td data-label="구분">
+            연구소
+            <input type="hidden" name="group3_gubun" value="산업계">
+          </td>
+          <td data-label="단체명">
+            SKZ
+            <input type="hidden" name="group3_name" value="메이커">
+          </td>
+          <td data-label="대표자">
+            김승민
+            <input type="hidden" name="group3_rep" value="진성최">
+          </td>
+          <td data-label="직위">
+            메보명창강쥐
+            <input type="hidden" name="group3_pos" value="책임">
+          </td>
+          <td data-label="연구개발실적(-30)"><input type="number" name="group3_score1" min="0" max="30" oninput="calculateTotal(3)" required></td>
+          <td data-label="협력참여도(-30)"><input type="number" name="group3_score2" min="0" max="30" oninput="calculateTotal(3)" required></td>
+          <td data-label="국가경제기여도(-40)"><input type="number" name="group3_score3" min="0" max="40" oninput="calculateTotal(3)" required></td>
+          <td data-label="합계(-100)"><span id="group3_total">0</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <button type="submit">전체 점수 제출하기</button>
+  </form>
+  
+  <div id="message"></div>
+
+  <script>
+    // '합계' 계산 스크립트
+    function calculateTotal(rowNum) {
+      var prefix = "group" + rowNum; 
+      var s1 = parseFloat(document.querySelector("input[name='" + prefix + "_score1']").value) || 0;
+      var s2 = parseFloat(document.querySelector("input[name='" + prefix + "_score2']").value) || 0;
+      var s3 = parseFloat(document.querySelector("input[name='" + prefix + "_score3']").value) || 0;
+      var total = s1 + s2 + s3;
+      document.getElementById(prefix + "_total").textContent = total;
+    }
+
+    // 폼 '제출' 스크립트 
+    document.getElementById("scoreForm").addEventListener("submit", function(e) {
+      e.preventDefault(); 
+      var messageDiv = document.getElementById("message");
+      messageDiv.textContent = "제출 중입니다... 잠시만 기다려주세요.";
+      messageDiv.style.color = "blue";
+      
+      // ⚠️⚠️⚠️ 여기에 '웹 앱 URL'을 꼭 넣으세요! ⚠️⚠️⚠️
+      var webAppUrl = "https://script.google.com/macros/s/AKfycbzF7IQLjznDmCyLxc0Iaj-D3FYJPcvM7j6yoNONMADDF4sw_8YgfxJfQvDPqwEnkxKP/exec"; 
+      
+      var formData = new FormData(this); 
+      
+      fetch(webAppUrl, {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.result === "success") {
+          messageDiv.textContent = "✔ 점수 제출에 성공했습니다!";
+          messageDiv.style.color = "green";
+        } else {
+          messageDiv.textContent = "❌ 오류 발생: " + data.message;
+          messageDiv.style.color = "red";
+        }
+      })
+      .catch(error => {
+        messageDiv.textContent = "❌ 전송 오류: " + error;
+        messageDiv.style.color = "red";
+      });
+    });
+  </script>
+</body>
+</html>
