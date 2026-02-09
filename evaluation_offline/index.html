@@ -1,5 +1,7 @@
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /* ---------------------------------- */
     /* 🎨 기본 스타일 (데스크탑) */
@@ -40,6 +42,43 @@
     .judge-section input { width: 250px; text-align: left; padding: 8px; font-size: 15px; }
 
     /* ---------------------------------- */
+    /* ✍️ 서명 캔버스 스타일 */
+    /* ---------------------------------- */
+    .signature-section {
+      margin-top: 30px;
+      border: 2px solid #4d79ff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .signature-section h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    #signatureCanvas {
+      border: 2px solid #333;
+      cursor: crosshair;
+      display: block;
+      margin: 10px auto;
+      background-color: white;
+      touch-action: none; /* 모바일에서 스크롤 방지 */
+    }
+    .signature-buttons {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .signature-buttons button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+    #clearBtn {
+      background-color: #ff6b6b;
+    }
+    #clearBtn:hover {
+      background-color: #cc5555;
+    }
+
+    /* ---------------------------------- */
     /* 📱 모바일 반응형 '마법' 코드  */
     /* (화면 너비가 768px보다 좁아지면 작동) */
     /* ---------------------------------- */
@@ -53,24 +92,24 @@
       table, tbody, tr, td {
         display: block;
         width: 100%;
-        box-sizing: border-box; /* 너비 계산이 꼬이지 않게 함 */
+        box-sizing: border-box;
       }
       
       /* 3. 한 '줄(tr)'을 하나의 '카드'처럼 보이게 함 */
       tbody tr {
         margin-bottom: 15px;
-        border: 2px solid #4d79ff; /* 파란색 테두리로 카드 구분 */
+        border: 2px solid #4d79ff;
         padding: 5px;
       }
       
       /* 4. 각 '칸(td)'의 스타일 변경 */
       tbody td {
-        padding-left: 45%;  /* 왼쪽에 '라벨'이 들어갈 공간 확보 */
-        text-align: right;  /* 값은 오른쪽 정렬 */
-        position: relative; /* '라벨'의 기준점이 됨 */
+        padding-left: 45%;
+        text-align: right;
+        position: relative;
         height: auto;
         border: none;
-        border-bottom: 1px dotted #ccc; /* 각 항목을 점선으로 구분 */
+        border-bottom: 1px dotted #ccc;
       }
       
       /* 5. 각 카드의 마지막 칸은 점선 없음 */
@@ -80,14 +119,13 @@
       
       /* 6. 🪄 'data-label'을 가져와서 왼쪽에 헤더처럼 붙여주기 */
       tbody td:before {
-        /* HTML의 'data-label' 속성 값을 가져옴 */
         content: attr(data-label); 
         position: absolute;
         left: 10px;
-        width: calc(45% - 15px); /* 패딩 뺀 값 */
+        width: calc(45% - 15px);
         text-align: left;
         font-weight: bold;
-        white-space: nowrap; /* 라벨이 줄바꿈되지 않게 함 */
+        white-space: nowrap;
         font-size: 14px;
         color: #333;
       }
@@ -103,6 +141,12 @@
         background-color: transparent;
         font-weight: normal;
         text-align: right;
+      }
+
+      /* 9. 서명 캔버스 모바일 대응 */
+      #signatureCanvas {
+        width: 100%;
+        height: 200px;
       }
     }
   </style>
@@ -201,6 +245,18 @@
         </tr>
       </tbody>
     </table>
+
+    <!-- ✍️ 서명 섹션 추가 -->
+    <div class="signature-section">
+      <h3>✍️ 심사위원 서명</h3>
+      <p style="color: #666; font-size: 14px;">아래 캔버스에 마우스나 손가락으로 서명해주세요</p>
+      <canvas id="signatureCanvas" width="600" height="200"></canvas>
+      <div class="signature-buttons">
+        <button type="button" id="clearBtn">서명 지우기</button>
+      </div>
+      <input type="hidden" id="signatureData" name="signature">
+    </div>
+
     <br>
     <button type="submit">전체 점수 제출하기</button>
   </form>
@@ -208,7 +264,95 @@
   <div id="message"></div>
 
   <script>
-    // '합계' 계산 스크립트
+    // ================================
+    // 서명 캔버스 설정
+    // ================================
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    // 캔버스 초기화
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // 마우스 이벤트 (데스크탑)
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // 터치 이벤트 (모바일)
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const currentX = e.clientX - rect.left;
+      const currentY = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+
+      lastX = currentX;
+      lastY = currentY;
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function handleTouchStart(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      isDrawing = true;
+      lastX = touch.clientX - rect.left;
+      lastY = touch.clientY - rect.top;
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault();
+      if (!isDrawing) return;
+      
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const currentX = touch.clientX - rect.left;
+      const currentY = touch.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+
+      lastX = currentX;
+      lastY = currentY;
+    }
+
+    // 서명 지우기 버튼
+    document.getElementById('clearBtn').addEventListener('click', function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('signatureData').value = '';
+    });
+
+    // ================================
+    // 합계 계산 스크립트
+    // ================================
     function calculateTotal(rowNum) {
       var prefix = "group" + rowNum; 
       var s1 = parseFloat(document.querySelector("input[name='" + prefix + "_score1']").value) || 0;
@@ -218,14 +362,28 @@
       document.getElementById(prefix + "_total").textContent = total;
     }
 
-    // 폼 '제출' 스크립트 
+    // ================================
+    // 폼 제출 스크립트
+    // ================================
     document.getElementById("scoreForm").addEventListener("submit", function(e) {
-      e.preventDefault(); 
+      e.preventDefault();
+      
+      // 서명 확인
+      const signatureDataUrl = canvas.toDataURL('image/png');
+      const isCanvasBlank = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0);
+      
+      if (isCanvasBlank) {
+        alert('서명을 작성해주세요!');
+        return;
+      }
+      
+      // 서명 데이터를 hidden input에 저장
+      document.getElementById('signatureData').value = signatureDataUrl;
+      
       var messageDiv = document.getElementById("message");
       messageDiv.textContent = "제출 중입니다... 잠시만 기다려주세요.";
       messageDiv.style.color = "blue";
       
-      // ⚠️⚠️⚠️ 여기에 '웹 앱 URL'을 꼭 넣으세요! ⚠️⚠️⚠️
       var webAppUrl = "https://script.google.com/macros/s/AKfycbzF7IQLjznDmCyLxc0Iaj-D3FYJPcvM7j6yoNONMADDF4sw_8YgfxJfQvDPqwEnkxKP/exec"; 
       
       var formData = new FormData(this); 
@@ -239,6 +397,9 @@
         if(data.result === "success") {
           messageDiv.textContent = "✔ 점수 제출에 성공했습니다!";
           messageDiv.style.color = "green";
+          // 제출 성공 시 폼 초기화
+          document.getElementById("scoreForm").reset();
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
         } else {
           messageDiv.textContent = "❌ 오류 발생: " + data.message;
           messageDiv.style.color = "red";
