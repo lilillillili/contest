@@ -1,0 +1,431 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* ---------------------------------- */
+    /* 🎨 기본 스타일 (데스크탑) */
+    /* ---------------------------------- */
+    body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; margin: 20px; }
+    h2 { padding-bottom: 10px; border-bottom: 2px solid #333; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; vertical-align: middle; }
+    th { background-color: #f4f4f4; font-weight: bold; }
+    
+    /* 평가항목 열 스타일 */
+    .category-col { background-color: #fafafa; font-weight: bold; }
+    
+    /* 세부 평가 목표 열 스타일 */
+    .detail-col { background-color: #fff; text-align: left; padding-left: 15px; }
+    
+    /* 배점 열 스타일 */
+    .score-col { background-color: #fafafa; font-weight: bold; }
+    
+    /* 기관별 입력 열 */
+    .institute-col { background-color: #fff; }
+    
+    input[type="number"] { 
+      width: 90%; 
+      padding: 8px; 
+      font-size: 16px; 
+      box-sizing: border-box;
+      text-align: center;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    
+    button { 
+      padding: 12px 25px; 
+      background-color: #4d79ff; 
+      color: white; 
+      border: none; 
+      cursor: pointer; 
+      font-size: 16px; 
+      font-weight: bold; 
+      margin-top: 15px;
+    }
+    button:hover { background-color: #3a5bcc; }
+    #message { margin-top: 15px; font-weight: bold; font-size: 16px; }
+    .judge-section { margin-bottom: 15px; }
+    .judge-section label { font-size: 16px; font-weight: bold; }
+    .judge-section input { width: 180px; }
+
+    /* ---------------------------------- */
+    /* ✍️ 서명 캔버스 스타일 */
+    /* ---------------------------------- */
+    .signature-section {
+      margin-top: 30px;
+      border: 2px solid #4d79ff;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .signature-section h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    #signatureCanvas {
+      border: 2px solid #333;
+      cursor: crosshair;
+      display: block;
+      margin: 10px auto;
+      background-color: white;
+      touch-action: none;
+    }
+    .signature-buttons {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .signature-buttons button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+    #clearBtn {
+      background-color: #ff6b6b;
+    }
+    #clearBtn:hover {
+      background-color: #cc5555;
+    }
+
+    /* 합계 행 스타일 */
+    .total-row {
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+
+    /* ---------------------------------- */
+    /* 📱 모바일 반응형 */
+    /* ---------------------------------- */
+    @media (max-width: 768px) {
+      table thead {
+        display: none;
+      }
+      
+      table, tbody, tr, td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      
+      tbody tr {
+        margin-bottom: 15px;
+        border: 2px solid #4d79ff;
+        padding: 5px;
+      }
+      
+      tbody td {
+        padding-left: 45%;
+        text-align: right;
+        position: relative;
+        border: none;
+        border-bottom: 1px dotted #ccc;
+      }
+      
+      tbody td:last-child {
+        border-bottom: 0;
+      }
+      
+      tbody td:before {
+        content: attr(data-label); 
+        position: absolute;
+        left: 10px;
+        width: calc(45% - 15px);
+        text-align: left;
+        font-weight: bold;
+        white-space: nowrap;
+        font-size: 14px;
+        color: #333;
+      }
+
+      input[type="number"], input[type="text"], select {
+        width: 100%;
+        font-size: 16px;
+      }
+
+      #signatureCanvas {
+        width: 100%;
+        height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>신산업융합형임베디드시스템전문인력양성사업 5차년도 자체평가 개별 심사표</h2>
+  
+  <form id="scoreForm">
+    <div class="judge-section">
+      <label for="judgeName">심사위원 성명: </label>
+      <input type="text" id="judgeNameInput" name="judgeName" required>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">평가항목</th>
+          <th colspan="2">정성(100)</th>
+          <th rowspan="2">배점</th>
+          <th rowspan="2">한국전자기술연구원</th>
+          <th rowspan="2">인하대학교</th>
+          <th rowspan="2">한국항공대학교</th>
+          <th rowspan="2">광운대학교</th>
+        </tr>
+        <tr>
+          <th>추진 실적 (정성)</th>
+          <th>향후 계획 (정성)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 성과 목표 달성 수준 -->
+        <tr>
+          <td rowspan="2" class="category-col" data-label="평가항목">5차년도<br>추진 실적<br>(정성)</td>
+          <td colspan="2" class="detail-col" data-label="세부항목">성과 목표 달성 수준</td>
+          <td class="score-col" data-label="배점">25</td>
+          <td class="institute-col" data-label="한국전자기술연구원">
+            <input type="number" name="keti_score1" min="0" max="25" oninput="calculateInstitute('keti')" required>
+          </td>
+          <td class="institute-col" data-label="인하대학교">
+            <input type="number" name="inha_score1" min="0" max="25" oninput="calculateInstitute('inha')" required>
+          </td>
+          <td class="institute-col" data-label="한국항공대학교">
+            <input type="number" name="kau_score1" min="0" max="25" oninput="calculateInstitute('kau')" required>
+          </td>
+          <td class="institute-col" data-label="광운대학교">
+            <input type="number" name="kwu_score1" min="0" max="25" oninput="calculateInstitute('kwu')" required>
+          </td>
+        </tr>
+        
+        <!-- 성과관리 및 환류 체계의 우수성 -->
+        <tr>
+          <td colspan="2" class="detail-col" data-label="세부항목">성과관리 및 환류 체계의 우수성</td>
+          <td class="score-col" data-label="배점">35</td>
+          <td class="institute-col" data-label="한국전자기술연구원">
+            <input type="number" name="keti_score2" min="0" max="35" oninput="calculateInstitute('keti')" required>
+          </td>
+          <td class="institute-col" data-label="인하대학교">
+            <input type="number" name="inha_score2" min="0" max="35" oninput="calculateInstitute('inha')" required>
+          </td>
+          <td class="institute-col" data-label="한국항공대학교">
+            <input type="number" name="kau_score2" min="0" max="35" oninput="calculateInstitute('kau')" required>
+          </td>
+          <td class="institute-col" data-label="광운대학교">
+            <input type="number" name="kwu_score2" min="0" max="35" oninput="calculateInstitute('kwu')" required>
+          </td>
+        </tr>
+
+        <!-- 계획 수립의 적절성 -->
+        <tr>
+          <td rowspan="2" class="category-col" data-label="평가항목">총괄 (1~4차년도)<br>추진 실적<br>(정성)</td>
+          <td colspan="2" class="detail-col" data-label="세부항목">계획 수립의 적절성</td>
+          <td class="score-col" data-label="배점">
+            <div style="text-align: center;">25</div>
+          </td>
+          <td class="institute-col" data-label="한국전자기술연구원 (40점)">
+            <input type="number" name="keti_score3" min="0" max="40" oninput="calculateInstitute('keti')" required>
+            <div style="font-size: 14px; font-weight: bold; color: #333; margin-top: 3px;">(40점)</div>
+          </td>
+          <td class="institute-col" data-label="인하대학교">
+            <input type="number" name="inha_score3" min="0" max="25" oninput="calculateInstitute('inha')" required>
+          </td>
+          <td class="institute-col" data-label="한국항공대학교">
+            <input type="number" name="kau_score3" min="0" max="25" oninput="calculateInstitute('kau')" required>
+          </td>
+          <td class="institute-col" data-label="광운대학교">
+            <input type="number" name="kwu_score3" min="0" max="25" oninput="calculateInstitute('kwu')" required>
+          </td>
+        </tr>
+
+        <!-- 취업 연계 및 성과 확산의 적절성 -->
+        <tr>
+          <td colspan="2" class="detail-col" data-label="세부항목">취업 연계 및 성과 확산의 적절성</td>
+          <td class="score-col" data-label="배점">15</td>
+          <td class="institute-col" data-label="한국전자기술연구원" style="background-color: #e8e8e8;">
+            <div style="color: #666;">해당없음</div>
+            <input type="hidden" name="keti_score4" value="0">
+          </td>
+          <td class="institute-col" data-label="인하대학교">
+            <input type="number" name="inha_score4" min="0" max="15" oninput="calculateInstitute('inha')" required>
+          </td>
+          <td class="institute-col" data-label="한국항공대학교">
+            <input type="number" name="kau_score4" min="0" max="15" oninput="calculateInstitute('kau')" required>
+          </td>
+          <td class="institute-col" data-label="광운대학교">
+            <input type="number" name="kwu_score4" min="0" max="15" oninput="calculateInstitute('kwu')" required>
+          </td>
+        </tr>
+
+        <!-- 합계 -->
+        <tr class="total-row">
+          <td colspan="3" data-label="합계">합 계</td>
+          <td data-label="총배점">100</td>
+          <td data-label="한국전자기술연구원 합계"><span id="keti_total">0</span></td>
+          <td data-label="인하대학교 합계"><span id="inha_total">0</span></td>
+          <td data-label="한국항공대학교 합계"><span id="kau_total">0</span></td>
+          <td data-label="광운대학교 합계"><span id="kwu_total">0</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ✍️ 서명 섹션 -->
+    <div class="signature-section">
+      <h3>✍️ 심사위원 서명</h3>
+      <p style="color: #666; font-size: 14px;">아래 캔버스에 마우스나 손가락으로 서명해주세요</p>
+      <canvas id="signatureCanvas" width="600" height="200"></canvas>
+      <div class="signature-buttons">
+        <button type="button" id="clearBtn">서명 지우기</button>
+      </div>
+      <input type="hidden" id="signatureData" name="signature">
+    </div>
+
+    <br>
+    <button type="submit">전체 점수 제출하기</button>
+  </form>
+  
+  <div id="message"></div>
+
+  <script>
+    // ================================
+    // 서명 캔버스 설정
+    // ================================
+    const canvas = document.getElementById('signatureCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    canvas.addEventListener('touchstart', handleTouchStart);
+    canvas.addEventListener('touchmove', handleTouchMove);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const currentX = e.clientX - rect.left;
+      const currentY = e.clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      lastX = currentX;
+      lastY = currentY;
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function handleTouchStart(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      isDrawing = true;
+      lastX = touch.clientX - rect.left;
+      lastY = touch.clientY - rect.top;
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault();
+      if (!isDrawing) return;
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const currentX = touch.clientX - rect.left;
+      const currentY = touch.clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(currentX, currentY);
+      ctx.stroke();
+      lastX = currentX;
+      lastY = currentY;
+    }
+
+    document.getElementById('clearBtn').addEventListener('click', function() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('signatureData').value = '';
+    });
+
+    // ================================
+    // 합계 계산 스크립트
+    // ================================
+    function calculateInstitute(prefix) {
+      let total = 0;
+      
+      // 모든 기관이 4개 항목 평가
+      for (let i = 1; i <= 4; i++) {
+        const input = document.querySelector(`input[name='${prefix}_score${i}']`);
+        if (input) {
+          total += parseFloat(input.value) || 0;
+        }
+      }
+      
+      document.getElementById(`${prefix}_total`).textContent = total;
+    }
+
+    // ================================
+    // 폼 제출 스크립트
+    // ================================
+    document.getElementById("scoreForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      const signatureDataUrl = canvas.toDataURL('image/png');
+      const isCanvasBlank = !ctx.getImageData(0, 0, canvas.width, canvas.height).data.some(channel => channel !== 0);
+      
+      if (isCanvasBlank) {
+        alert('서명을 작성해주세요!');
+        return;
+      }
+      
+      document.getElementById('signatureData').value = signatureDataUrl;
+      
+      var messageDiv = document.getElementById("message");
+      messageDiv.textContent = "제출 중입니다... 잠시만 기다려주세요.";
+      messageDiv.style.color = "blue";
+      
+      var webAppUrl = "https://script.google.com/macros/s/AKfycbyd7WgMJAJ9e7Gvz3sspCLPDN5kRWzPX8calCO4jUdD77lN9_eBjIU8omHuIVcnUy1N/exec"; 
+      
+      var formData = new FormData(this); 
+      
+      fetch(webAppUrl, {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.result === "success") {
+          messageDiv.textContent = "✔ 점수 제출에 성공했습니다!";
+          messageDiv.style.color = "green";
+          document.getElementById("scoreForm").reset();
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        } else {
+          messageDiv.textContent = "❌ 오류 발생: " + data.message;
+          messageDiv.style.color = "red";
+        }
+      })
+      .catch(error => {
+        messageDiv.textContent = "❌ 전송 오류: " + error;
+        messageDiv.style.color = "red";
+      });
+    });
+  </script>
+</body>
+</html>
